@@ -15,8 +15,8 @@ function App() {
       <Router>
         <Routes>
           <Route path="/auth" element={<AuthPage />} />
-          
-          <Route element={<ProtectedRoute><Layout /></ProtectedRoute>}>
+
+          <Route element={<ProtectedRoute><Layout /></ProtectedRoute>}>  {/* only authorized  user*/}
             <Route path="/" element={<Dashboard />} />
             <Route path="/projects" element={<Projects />} />
             <Route path="/projects/:id" element={<ProjectDetails />} />

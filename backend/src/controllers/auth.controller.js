@@ -5,7 +5,7 @@ const prisma = require('../utils/prisma');
 
 const generateToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
-    expiresIn: '7d', // 7 days session as requested
+    expiresIn: '7d', //7 day validity 
   });
 };
 
@@ -29,6 +29,7 @@ const registerUser = asyncHandler(async (req, res) => {
   const salt = await bcrypt.genSalt(10);
   const hashedPassword = await bcrypt.hash(password, salt);
 
+  //here creating user
   const user = await prisma.user.create({
     data: {
       name,
@@ -51,6 +52,7 @@ const registerUser = asyncHandler(async (req, res) => {
   }
 });
 
+//for login
 const loginUser = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
 

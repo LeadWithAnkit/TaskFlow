@@ -34,16 +34,16 @@ const AuthPage = () => {
 
   return (
     <div className="min-h-screen font-sans bg-[#0A0A0A] text-gray-100 flex flex-col relative overflow-y-auto overflow-x-hidden">
-      {/* Fixed Background Layer to prevent stretching on scroll */}
-      <div 
+      {/* Background */}
+      <div
         className="fixed inset-0 z-0 bg-cover bg-center bg-no-repeat opacity-[0.35] mix-blend-screen pointer-events-none"
         style={{ backgroundImage: "url('/bg_network.png')" }}
       ></div>
-      
+
       {/* Gradient overlay */}
       <div className="fixed inset-0 z-0 bg-gradient-to-b from-[#0A0A0A] via-transparent to-[#0A0A0A] pointer-events-none"></div>
 
-      {/* Header (In Document Flow so it never gets covered) */}
+      {/* Header */}
       <header className="relative z-20 flex items-center justify-between w-full px-6 sm:px-8 lg:px-16 pt-6 sm:pt-8 pb-4 shrink-0">
         <div className="flex items-center space-x-2">
           <svg className="w-6 h-6 text-gray-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"></path></svg>
@@ -60,7 +60,7 @@ const AuthPage = () => {
 
       {/* Main Content Layout */}
       <main className="flex-1 w-full relative z-10 flex flex-col lg:flex-row items-center justify-center">
-        
+
         {/* Left side content */}
         <div className="w-full lg:w-[55%] flex flex-col justify-center px-8 sm:px-12 md:px-16 lg:px-24 xl:px-32 py-8 lg:py-0 shrink-0">
           <div className="w-full max-w-[550px] mx-auto lg:mx-0">
@@ -68,7 +68,7 @@ const AuthPage = () => {
               Unified Workflow <br className="hidden sm:block" />
               for Ambitious Teams.
             </h1>
-            
+
             <p className="text-lg xl:text-xl text-gray-400 mb-8 sm:mb-12 leading-relaxed font-light">
               Assign & Finish work without confusion. From planning to execution, a single platform to align and deliver.
             </p>
@@ -89,21 +89,21 @@ const AuthPage = () => {
         {/* Right side form */}
         <div className="w-full lg:w-[45%] flex items-center justify-center p-6 sm:p-8 lg:pr-16 shrink-0 mb-8 lg:mb-0">
           <div className="w-full max-w-[400px] bg-gradient-to-br from-gray-200 to-gray-400 p-8 rounded-3xl shadow-[0_0_40px_rgba(0,0,0,0.8)] border border-gray-500/20 relative">
-            {/* subtle metallic shine */}
+
             <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/40 to-transparent opacity-60 pointer-events-none rounded-3xl"></div>
-            
+
             <div className="relative z-10">
               {/* Role Switcher */}
               <div className="flex justify-center mb-8">
                 <div className="bg-gray-300/60 p-1 rounded-xl inline-flex shadow-inner">
-                  <button 
+                  <button
                     type="button"
                     onClick={() => { setRoleMode('user'); setError(''); }}
                     className={`px-5 py-2 text-xs font-bold uppercase tracking-widest rounded-lg transition-all ${roleMode === 'user' ? 'bg-gray-100 text-gray-900 shadow-sm' : 'text-gray-600 hover:text-gray-800'}`}
                   >
                     User
                   </button>
-                  <button 
+                  <button
                     type="button"
                     onClick={() => { setRoleMode('admin'); setActiveTab('login'); setError(''); }}
                     className={`px-5 py-2 text-xs font-bold uppercase tracking-widest rounded-lg transition-all ${roleMode === 'admin' ? 'bg-gray-100 text-gray-900 shadow-sm' : 'text-gray-600 hover:text-gray-800'}`}
@@ -133,7 +133,7 @@ const AuthPage = () => {
                       placeholder="John Doe" value={formData.name} onChange={handleChange} />
                   </div>
                 )}
-                
+
                 <div className="space-y-1.5">
                   <label className="text-xs font-bold text-gray-700 tracking-widest uppercase">Email</label>
                   <input name="email" type="email" required
