@@ -43,6 +43,11 @@ const getProjectById = asyncHandler(async (req, res) => {
 });
 
 const createProject = asyncHandler(async (req, res) => {
+  if (req.user.role !== 'ADMIN') {
+    res.status(403);
+    throw new Error('Only admins can create projects');
+  }
+
   const { name, description } = req.body;
   
   const project = await prisma.project.create({
@@ -77,4 +82,20 @@ const updateProjectMembers = asyncHandler(async (req, res) => {
   res.json(project);
 });
 
-module.exports = { getProjects, getProjectById, createProject, updateProjectMembers };
+const deleteProject = asyncHandler(async (req, res) => {
+  if (req.user.role !== 'ADMIN') {
+    res.status(403);
+    throw new Error('Only admins can delete projects');
+  }
+
+  const project = await prisma.project.findUnique({ where: { id: req.params.id } });
+  if (!project) {
+    res.status(404);
+    throw new Error('Project not found');
+  }
+
+  await prisma.project.delete({ where: { id: req.params.id } });
+  res.json({ message: 'Project removed' });
+});
+
+module.exports = { getProjects, getProjectById, createProject, updateProjectMembers, deleteProject };

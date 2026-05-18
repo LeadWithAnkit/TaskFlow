@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { getProjects, getProjectById, createProject, updateProjectMembers } = require('../controllers/project.controller');
+const { getProjects, getProjectById, createProject, updateProjectMembers, deleteProject } = require('../controllers/project.controller');
 const { protect } = require('../middleware/auth');
 
 router.route('/')
@@ -8,7 +8,8 @@ router.route('/')
   .post(protect, createProject);
 
 router.route('/:id')
-  .get(protect, getProjectById);
+  .get(protect, getProjectById)
+  .delete(protect, deleteProject);
 
 router.route('/:id/members')
   .put(protect, updateProjectMembers);

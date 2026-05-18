@@ -13,6 +13,10 @@ const Layout = () => {
     { name: 'My Tasks', href: '/tasks' },
   ];
 
+  if (user?.role === 'ADMIN') {
+    navigation.push({ name: 'Users', href: '/users' });
+  }
+
   return (
     <div className="min-h-screen font-sans bg-[#0A0A0A] text-gray-100 flex flex-col md:flex-row relative overflow-hidden">
       {/* Fixed Background Layer */}

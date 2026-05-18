@@ -37,18 +37,33 @@ const Projects = () => {
     }
   };
 
+  const handleDeleteProject = async (e, id) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (window.confirm("Are you sure you want to delete this project? All associated tasks will be permanently deleted!")) {
+      try {
+        await axios.delete(`/projects/${id}`);
+        fetchProjects();
+      } catch (error) {
+        console.error('Failed to delete project', error);
+      }
+    }
+  };
+
   if (loading) return <div className="text-gray-400 font-medium">Loading projects...</div>;
 
   return (
     <div className="max-w-6xl mx-auto space-y-8">
       <div className="flex justify-between items-center">
         <h2 className="text-3xl font-extrabold tracking-tight text-gray-100">Projects</h2>
-        <button
-          onClick={() => setModalOpen(true)}
-          className="px-5 py-2.5 bg-gray-100 text-gray-900 rounded-xl text-sm font-bold hover:bg-white transition-all shadow-[0_0_15px_rgba(255,255,255,0.1)] active:scale-95"
-        >
-          + Create Project
-        </button>
+        {user?.role === 'ADMIN' && (
+          <button
+            onClick={() => setModalOpen(true)}
+            className="px-5 py-2.5 bg-gray-100 text-gray-900 rounded-xl text-sm font-bold hover:bg-white transition-all shadow-[0_0_15px_rgba(255,255,255,0.1)] active:scale-95"
+          >
+            + Create Project
+          </button>
+        )}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -62,7 +77,18 @@ const Projects = () => {
             <Link key={project.id} to={`/projects/${project.id}`} className="block group h-full">
               <div className="bg-white/5 backdrop-blur-md rounded-2xl shadow-lg border border-gray-600/30 p-6 sm:p-8 transition-all hover:bg-white/10 hover:border-gray-400/50 hover:shadow-[0_0_30px_rgba(255,255,255,0.05)] h-full flex flex-col relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-32 h-32 bg-white opacity-[0.02] rounded-bl-full transform translate-x-8 -translate-y-8 group-hover:scale-110 transition-transform duration-500"></div>
-                <h3 className="text-xl font-bold text-gray-100 group-hover:text-white transition-colors">{project.name}</h3>
+                <div className="flex justify-between items-start relative z-10">
+                  <h3 className="text-xl font-bold text-gray-100 group-hover:text-white transition-colors">{project.name}</h3>
+                  {user?.role === 'ADMIN' && (
+                    <button 
+                      onClick={(e) => handleDeleteProject(e, project.id)}
+                      className="text-gray-500 hover:text-red-400 p-1.5 rounded-lg transition-colors bg-white/5 hover:bg-white/10"
+                      title="Delete Project"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                    </button>
+                  )}
+                </div>
                 <p className="mt-3 text-sm text-gray-400 flex-1 line-clamp-3 leading-relaxed">{project.description}</p>
                 <div className="mt-6 pt-4 border-t border-gray-700/50 flex justify-between items-center text-xs font-medium text-gray-500 tracking-wide uppercase">
                   <span className="flex items-center space-x-1.5"><svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg> <span>{project.tasks?.length || 0} tasks</span></span>

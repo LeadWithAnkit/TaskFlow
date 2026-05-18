@@ -3,10 +3,15 @@ const prisma = require('../utils/prisma');
 
 const getDashboardStats = asyncHandler(async (req, res) => {
   let filter = {};
-  if (req.user.role !== 'ADMIN') filter.assignedToId = req.user.id;
-
+  if (req.user.role !== 'ADMIN') {
+    filter.OR = [
+      { assignedToId: req.user.id },
+      { assignedToId: null, projectId: null },
+      { assignedToId: null, project: { members: { some: { id: req.user.id } } } }
+    ];
+  }
   const totalTasks = await prisma.task.count({ where: filter });
-  
+
   const statusCounts = await prisma.task.groupBy({
     by: ['status'],
     where: filter,

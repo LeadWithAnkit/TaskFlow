@@ -7,7 +7,8 @@ const Tasks = () => {
   const [loading, setLoading] = useState(true);
   const [draggedTask, setDraggedTask] = useState(null);
   const [isModalOpen, setModalOpen] = useState(false);
-  const [newTask, setNewTask] = useState({ title: '', description: '', priority: 'MEDIUM', status: 'TODO' });
+  const [users, setUsers] = useState([]);
+  const [newTask, setNewTask] = useState({ title: '', description: '', priority: 'MEDIUM', status: 'TODO', assignedToId: '' });
   const { user } = useContext(AuthContext);
 
   const fetchTasks = async () => {
@@ -21,9 +22,20 @@ const Tasks = () => {
     }
   };
 
+  const fetchUsers = async () => {
+    if (user?.role !== 'ADMIN') return;
+    try {
+      const res = await axios.get('/users');
+      setUsers(res.data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   useEffect(() => {
     fetchTasks();
-  }, []);
+    fetchUsers();
+  }, [user]);
 
   const handleUpdateStatus = async (id, newStatus) => {
     setTasks(prev => prev.map(t => t.id === id ? { ...t, status: newStatus } : t));
@@ -40,10 +52,21 @@ const Tasks = () => {
     try {
       await axios.post('/tasks', newTask);
       setModalOpen(false);
-      setNewTask({ title: '', description: '', priority: 'MEDIUM', status: 'TODO' });
+      setNewTask({ title: '', description: '', priority: 'MEDIUM', status: 'TODO', assignedToId: '' });
       fetchTasks();
     } catch (error) {
       console.error('Failed to create task', error);
+    }
+  };
+
+  const handleDeleteTask = async (id) => {
+    if (window.confirm("Are you sure you want to delete this task?")) {
+      try {
+        await axios.delete(`/tasks/${id}`);
+        fetchTasks();
+      } catch (error) {
+        console.error('Failed to delete task', error);
+      }
     }
   };
 
@@ -126,6 +149,15 @@ const Tasks = () => {
                     <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wide border ${getPriorityColor(task.priority)}`}>
                       {task.priority}
                     </span>
+                    {user?.role === 'ADMIN' && (
+                      <button 
+                        onClick={() => handleDeleteTask(task.id)}
+                        className="text-gray-500 hover:text-red-400 transition-colors p-1 ml-2"
+                        title="Delete Task"
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                      </button>
+                    )}
                   </div>
                   <h4 className="text-sm font-semibold text-gray-100 mb-1 leading-snug">{task.title}</h4>
                   {task.description && (
@@ -133,8 +165,19 @@ const Tasks = () => {
                   )}
                   
                   <div className="flex justify-between items-center pt-3 border-t border-gray-800/50 mt-auto">
-                    <div className="text-[10px] font-medium text-gray-500 uppercase tracking-wider truncate max-w-[120px]">
-                      {task.project?.name || 'General'}
+                    <div className="flex flex-col">
+                      <span className="text-[10px] font-medium text-gray-500 uppercase tracking-wider truncate max-w-[120px]">
+                        {task.project?.name || 'General'}
+                      </span>
+                      <span className="text-[10px] font-bold text-indigo-400 mt-0.5">
+                        {task.assignedTo ? `@${task.assignedTo.name}` : 'Everyone'}
+                      </span>
+                    </div>
+                    <div className="flex flex-col items-end text-[9px] text-gray-500 font-medium text-right">
+                      <span>{new Date(task.createdAt).toLocaleDateString()}</span>
+                      {task.status === 'DONE' && (
+                        <span className="text-emerald-500 mt-0.5">Done: {new Date(task.updatedAt).toLocaleDateString()}</span>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -184,6 +227,16 @@ const Tasks = () => {
                     <option value="DONE">Done</option>
                   </select>
                 </div>
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-gray-400 mb-2 uppercase tracking-widest">Assign To</label>
+                <select value={newTask.assignedToId} onChange={e => setNewTask({...newTask, assignedToId: e.target.value})}
+                  className="w-full px-4 py-3 bg-[#111] border border-gray-700 rounded-xl text-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500 text-sm">
+                  <option value="">Unassigned (Visible to Everyone)</option>
+                  {users.map(u => (
+                    <option key={u.id} value={u.id}>{u.name} ({u.email})</option>
+                  ))}
+                </select>
               </div>
               <div className="flex justify-end space-x-3 mt-8 pt-4 border-t border-gray-800">
                 <button type="button" onClick={() => setModalOpen(false)} className="px-5 py-2.5 text-sm font-semibold text-gray-400 hover:text-white transition-colors">Cancel</button>

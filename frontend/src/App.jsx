@@ -7,6 +7,7 @@ import Dashboard from './pages/Dashboard';
 import Projects from './pages/Projects';
 import ProjectDetails from './pages/ProjectDetails';
 import Tasks from './pages/Tasks';
+import Users from './pages/Users';
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
             <Route path="/projects" element={<Projects />} />
             <Route path="/projects/:id" element={<ProjectDetails />} />
             <Route path="/tasks" element={<Tasks />} />
+            <Route path="/users" element={<Users />} />
           </Route>
         </Routes>
       </Router>

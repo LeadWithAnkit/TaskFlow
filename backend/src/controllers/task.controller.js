@@ -7,14 +7,18 @@ const getTasks = asyncHandler(async (req, res) => {
   let filter = {};
   if (projectId) filter.projectId = projectId;
   
-  // Assignment Requirement: Member can view assigned tasks only
+  // Assignment Requirement: Member can view assigned tasks, global unassigned tasks, or project unassigned tasks if they are in the project
   if (req.user.role !== 'ADMIN') {
-    filter.assignedToId = req.user.id;
+    filter.OR = [
+      { assignedToId: req.user.id },
+      { assignedToId: null, projectId: null },
+      { assignedToId: null, project: { members: { some: { id: req.user.id } } } }
+    ];
   }
   
   const tasks = await prisma.task.findMany({
     where: filter,
-    include: { project: { select: { name: true } }, assignedTo: { select: { name: true } } },
+    include: { project: { select: { name: true } }, assignedTo: { select: { id: true, name: true, email: true } } },
     orderBy: { createdAt: 'desc' }
   });
   
@@ -37,8 +41,9 @@ const createTask = asyncHandler(async (req, res) => {
       dueDate: dueDate ? new Date(dueDate) : null,
       priority,
       projectId: projectId || null,
-      assignedToId: assignedToId || req.user.id
-    }
+      assignedToId: assignedToId || null
+    },
+    include: { assignedTo: { select: { id: true, name: true, email: true } } }
   });
   
   res.status(201).json(task);
@@ -47,7 +52,10 @@ const createTask = asyncHandler(async (req, res) => {
 const updateTask = asyncHandler(async (req, res) => {
   const { status, title, description, priority, dueDate, assignedToId } = req.body;
   
-  const task = await prisma.task.findUnique({ where: { id: req.params.id } });
+  const task = await prisma.task.findUnique({ 
+    where: { id: req.params.id },
+    include: { assignedTo: true }
+  });
   
   if (!task) {
     res.status(404);
@@ -64,12 +72,13 @@ const updateTask = asyncHandler(async (req, res) => {
     where: { id: req.params.id },
     data: {
       status, 
-      title: req.user.role === 'ADMIN' ? title : undefined, // Only admins can change core details? Or members too? Reverting to strict.
+      title: req.user.role === 'ADMIN' ? title : undefined,
       description: req.user.role === 'ADMIN' ? description : undefined,
       priority: req.user.role === 'ADMIN' ? priority : undefined,
       dueDate: req.user.role === 'ADMIN' ? (dueDate ? new Date(dueDate) : undefined) : undefined,
       assignedToId: req.user.role === 'ADMIN' ? assignedToId : undefined
-    }
+    },
+    include: { assignedTo: { select: { id: true, name: true, email: true } } }
   });
   
   res.json(updatedTask);
