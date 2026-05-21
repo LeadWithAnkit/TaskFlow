@@ -60,18 +60,24 @@ const loginUser = asyncHandler(async (req, res) => {
     where: { email },
   });
 
-  if (user && (await bcrypt.compare(password, user.password))) {
-    res.json({
-      id: user.id,
-      name: user.name,
-      email: user.email,
-      role: user.role,
-      token: generateToken(user.id),
-    });
-  } else {
-    res.status(401);
-    throw new Error('Invalid credentials');
+  if (!user) {
+    res.status(404);
+    throw new Error('User not found');
   }
+
+  const isPasswordCorrect = await bcrypt.compare(password, user.password);
+  if (!isPasswordCorrect) {
+    res.status(401);
+    throw new Error('Wrong password');
+  }
+
+  res.json({
+    id: user.id,
+    name: user.name,
+    email: user.email,
+    role: user.role,
+    token: generateToken(user.id),
+  });
 });
 
 const getMe = asyncHandler(async (req, res) => {

@@ -4,7 +4,7 @@ const prisma = require('./src/utils/prisma');
 async function test() {
   try {
     const tasks = await prisma.task.findMany({
-      include: { assignees: true }
+      include: { assignedTo: true }
     });
     console.log("Tasks:", tasks);
   } catch (e) {

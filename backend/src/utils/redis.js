@@ -12,7 +12,7 @@ const redis = !isPlaceholder
 // Simple custom rate limiter using Redis
 const rateLimiter = async (req, res, next) => {
   if (!redis) {
-    return next(); // Skip if redis is not configured
+    return next(); // Skip if 
   }
 
   try {
